@@ -31,6 +31,9 @@ url = os.environ["WEAVIATE_ENDPOINT"]
 
 client = WeaviateClient(api_key, url)
 available_classes = client.show_classes()
+client.display_properties.append('summary')
+alpha = 0.25
+logger.info("client live {}, ready {}", client.is_live(), client.is_ready())
 ## RERANKER
 reranker = ReRanker(model_name='cross-encoder/ms-marco-MiniLM-L-6-v2')
 ## LLM 
@@ -103,9 +106,7 @@ def main():
                 st.markdown("----")
                 #creates container for LLM response
                 chat_container, response_box = [], st.empty()
-                for resp in llm.get_chat_completion(prompt=prompt,
-                                                    system_message='Answer this question using the material provided in the prompt.',
-                                                    temperature=temperature_input, max_tokens=500, stream=True):
+                for resp in llm.get_chat_completion(prompt=prompt,temperature=temperature_input, max_tokens=500):
                     try:
                         with response_box:
                             content = resp.choices[0].delta.content
